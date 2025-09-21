@@ -249,11 +249,127 @@ void Test3() {
     cout << "Test 3 failed"s << endl;
 }
 
+/**
+* @brief Проверка подачи отрицательных потоков на вход
+*/
+void Test4() {
+    streamcounter = 0;
+    Mixer d1(2);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(-5.0);
+
+    d1.addInput(s1);
+    d1.addInput(s2);
+    d1.addOutput(s3);
+
+    d1.updateOutputs();
+
+    if (abs(s3->getMassFlow() - 5) < POSSIBLE_ERROR) {
+        cout << "Test 5 passed" << endl;
+    }
+    else {
+        cout << "Test 5 failed" << endl;
+    }
+}
+
+/**
+* @brief Проверка пустых входных потоков 
+* (выход должен быть 0, если не заданы никакие входы)
+*/
+void Test5() {
+    streamcounter = 0;
+    Mixer d1(2);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    d1.addOutput(s1);
+
+    d1.updateOutputs();
+
+    if (abs(s1->getMassFlow()) == 0) {
+        cout << "Test 4 passed" << endl;
+    }
+    else {
+        cout << "Test 4 failed" << endl;
+    }
+}
+
+/**
+* @brief Проверка, что updateOutputs() корректно пересчитывает выход
+* при изменении входных потоков
+*/
+void Test6() {
+    streamcounter = 0;
+    Mixer d1(2);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(5.0);
+
+    d1.addInput(s1);
+    d1.addInput(s2);
+    d1.addOutput(s3);
+
+    d1.updateOutputs();
+    if (abs(s3->getMassFlow() - 15) > POSSIBLE_ERROR) {
+        cout << "Test 6 failed" << endl;
+        return;
+    }
+
+    s1->setMassFlow(20.0);
+    d1.updateOutputs();
+
+    if (abs(s3->getMassFlow() - 25) < POSSIBLE_ERROR) {
+        cout << "Test 6 passed" << endl;
+    }
+    else {
+        cout << "Test 6 failed" << endl;
+    }
+}
+
+/**
+* @brief Проверка отсутствия выходного потока
+*/
+void Test7() {
+    streamcounter = 0;
+    Mixer d1(2);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    s1->setMassFlow(5.0);
+    s2->setMassFlow(5.0);
+
+    d1.addInput(s1);
+    d1.addInput(s2);
+
+    try {
+        d1.updateOutputs();
+    }
+    catch (const string& ex) {
+        if (ex == "Should set outputs before update") {
+            cout << "Test 7 passed" << endl;
+            return;
+        }
+    }
+    cout << "Test 7 failed" << endl;
+}
+
 
 void tests(){
     Test1();
     Test2();
     Test3();
+    Test4();
+    Test5();
+    Test6();
+    Test7();
 }
 
 /**
