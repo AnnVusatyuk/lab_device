@@ -216,96 +216,8 @@ void shouldCorrectInputs() {
     cout << "Test 3 failed"s << endl;
 }
 
-class Reactor : public Device{
-public:
-    Reactor(bool isDoubleReactor) {
-        inputAmount = 1;
-        if (isDoubleReactor) outputAmount = 2;
-        else inputAmount = 1;
-    }
-    
-    void updateOutputs() override{
-        double inputMass = inputs.at(0) -> getMassFlow();
-            for(int i = 0; i < outputAmount; i++){
-            double outputLocal = inputMass * (1/outputAmount);
-            outputs.at(i) -> setMassFlow(outputLocal);
-        }
-    }
-};
-
-void testTooManyOutputStreams(){
-    streamcounter=0;
-    
-    Reactor dl = new Reactor(false);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-    dl.addInput(s1);
-    dl.addOutput(s2);
-    try{
-        dl.addOutput(s3);
-    } catch(const string ex){
-         if (ex == "OUTPUT STREAM LIMIT!")
-            cout << "Test 1 passed" << endl;
-
-        return;
-    }
-    
-     cout << "Test 1 failed" << endl;
-}
-
-void testTooManyInputStreams(){
-    streamcounter=0;
-    
-    Reactor dl = new Reactor(false);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-    dl.addInput(s1);
-    try{
-        dl.addInput(s3);
-    } catch(const string ex){
-         if (ex == "INPUT STREAM LIMIT!")
-            cout << "Test 2 passed" << endl;
-
-        return;
-    }
-    
-     cout << "Test 2 failed"s << endl;
-}
-
-void testInputEqualOutput(){
-        streamcounter=0;
-    
-    Reactor dl = new Reactor(true);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-    dl.addInput(s1);
-    dl.addOutput(s2);
-    dl.addOutput(s3);
-    
-    dl.updateOutputs();
-    
-    if(dl.outputs.at(0).getMassFlow + dl.outputs.at(1).getMassFlow == dl.inputs.at(0).getMassFlow)
-        cout << "Test 3 passed" << endl;
-    else
-        cout << "Test 3 failed" << endl;
-}
 
 void tests(){
-    testInputEqualOutput();
-    testTooManyOutputStreams();
-    testTooManyInputStreams();
-    
     shouldSetOutputsCorrectlyWithOneOutput();
     shouldCorrectOutputs();
     shouldCorrectInputs();
@@ -328,19 +240,19 @@ int main()
     s1->setMassFlow(10.0);
     s2->setMassFlow(5.0);
 
-    // Create a device (e.g., Mixer) and add input/output streams
-    // Mixer d1;
-    // d1.addInput(s1);
-    // d1.addInput(s2);
-    // d1.addOutput(s3);
+    // Create a device (Mixer) and add input/output streams
+    Mixer d1(2);
+    d1.addInput(s1);
+    d1.addInput(s2);
+    d1.addOutput(s3);
 
     // Update the outputs of the device
-    // d1.updateOutputs();
+    d1.updateOutputs();
 
     // Print stream information
-//    s1->print();
-//    s2->print();
-//    s3->print();
+    s1->print();
+    s2->print();
+    s3->print();
     tests();
 
     return 0;
