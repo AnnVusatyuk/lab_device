@@ -99,26 +99,49 @@ public:
     virtual void updateOutputs() = 0;
 };
 
+/**
+ * @class Mixer
+ * @brief Моделирует работу смесителя с N входов и 1 выходом
+ */
 class Mixer: public Device
 {
     private:
       int _inputs_count = 0;
     public:
+      /**
+       * @brief Конструктор смесителя с заданным количеством входных потоков
+       * @param inputs_count Количество входных потоков
+       */
       Mixer(int inputs_count): Device() {
         _inputs_count = inputs_count;
       }
+
+      /**
+       * @brief Добавление входного потока
+       * @param s Входной поток
+       */
       void addInput(shared_ptr<Stream> s) {
         if (inputs.size() == _inputs_count) {
           throw "Too much inputs"s;
         }
         inputs.push_back(s);
       }
+
+      /**
+       * @brief Добавление выходного потока
+       * @param s Выходной поток
+       */
       void addOutput(shared_ptr<Stream> s) {
         if (outputs.size() == MIXER_OUTPUTS) {
           throw "Too much outputs"s;
         }
         outputs.push_back(s);
       }
+
+      /**
+       * @brief Обновление расхода на выходе. Суммируется расход всех входных потоков,
+       * результат присваивается выходу
+       */
       void updateOutputs() override {
         double sum_mass_flow = 0;
         for (const auto& input_stream : inputs) {
@@ -137,7 +160,10 @@ class Mixer: public Device
       }
 };
 
-void shouldSetOutputsCorrectlyWithOneOutput() {
+/**
+* @brief Проверка правильного суммирования входных потоков 
+*/
+void Test1() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
     
@@ -160,7 +186,10 @@ void shouldSetOutputsCorrectlyWithOneOutput() {
     }
 }
 
-void shouldCorrectOutputs() {
+/**
+* @brief Попытка добавления больше 1 потока на выход
+*/
+void Test2() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
     
@@ -188,7 +217,11 @@ void shouldCorrectOutputs() {
     cout << "Test 2 failed"s << endl;
 }
 
-void shouldCorrectInputs() {
+/**
+* @brief Попытка добавления большего количества потоков,
+* чем было изначально задано для смесителя
+*/
+void Test3() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
     
@@ -218,9 +251,9 @@ void shouldCorrectInputs() {
 
 
 void tests(){
-    shouldSetOutputsCorrectlyWithOneOutput();
-    shouldCorrectOutputs();
-    shouldCorrectInputs();
+    Test1();
+    Test2();
+    Test3();
 }
 
 /**
